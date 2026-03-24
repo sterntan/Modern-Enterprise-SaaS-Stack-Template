@@ -1,0 +1,122 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Home">
+  <section class="hero">
+    <div class="badge">✨ Full-Stack SaaS Starter Kit</div>
+    <h1>The Modern Enterprise<br/><span class="gradient">SaaS Stack</span></h1>
+    <p class="subtitle">FastAPI + Astro + Sanity + React — fully connected, fully functional, ready to ship.</p>
+    <div class="actions">
+      <a href="/signup" class="btn btn-primary">Create Account →</a>
+      <a href="/products" class="btn btn-secondary">View Products</a>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="feature-card">
+      <div class="icon">⚡</div>
+      <h3>FastAPI Backend</h3>
+      <p>High-performance Python API with auto-generated Swagger docs, database ORM, and live CORS-enabled endpoints.</p>
+      <a href="http://127.0.0.1:8000/docs" target="_blank" class="link">Open API Docs →</a>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🚀</div>
+      <h3>Astro + Sanity CMS</h3>
+      <p>Server-side rendered public site powered by a visual headless CMS. Edit content without touching code.</p>
+      <a href="/studio" class="link">Open Studio →</a>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🛡️</div>
+      <h3>React Admin Dashboard</h3>
+      <p>A live admin SPA that fetches users and metrics from the database in real time. Fully wired, no mock data.</p>
+      <a href="http://localhost:5173" target="_blank" class="link">Open Dashboard →</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: 5rem 0 4rem;
+  }
+  .badge {
+    display: inline-block;
+    background: #eff6ff;
+    color: #3b82f6;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.3rem 0.9rem;
+    border-radius: 99px;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.5px;
+    border: 1px solid #bfdbfe;
+  }
+  .hero h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 1.25rem;
+    letter-spacing: -1.5px;
+  }
+  .gradient {
+    background: linear-gradient(135deg, #38bdf8, #6366f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle {
+    font-size: 1.15rem;
+    color: #64748b;
+    margin-bottom: 2.5rem;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 4rem;
+  }
+  .feature-card {
+    background: white;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 2rem;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .feature-card:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    transform: translateY(-3px);
+  }
+  .icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  .feature-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #0f172a;
+  }
+  .feature-card p {
+    color: #64748b;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  .link {
+    color: #38bdf8;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .link:hover { color: #0ea5e9; }
+</style>

@@ -1,0 +1,52 @@
+services:
+
+  # ── Backend (FastAPI + SQLite) ──────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: saas_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./data/database.db
+    volumes:
+      - backend_data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/docs')\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ── Public Site (Astro + Sanity) ────────────────────────────────────────
+  public-site:
+    build:
+      context: ./public-site
+      dockerfile: Dockerfile
+    container_name: saas_public
+    ports:
+      - "4321:4321"
+    environment:
+      - PUBLIC_SANITY_PROJECT_ID=${PUBLIC_SANITY_PROJECT_ID:-your-project-id}
+      - PUBLIC_SANITY_DATASET=${PUBLIC_SANITY_DATASET:-production}
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Internal Admin App (React + Vite → nginx) ────────────────────────────
+  internal-app:
+    build:
+      context: ./internal-app
+      dockerfile: Dockerfile
+    container_name: saas_admin
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  backend_data:

@@ -1,0 +1,62 @@
+---
+// Navigation.astro
+---
+<header class="nav">
+  <a href="/" class="logo">⚡ SaaS Template</a>
+  <nav class="links">
+    <a href="/about">About</a>
+    <a href="/products">Products</a>
+    <a href="/signup">Sign Up</a>
+    <a href="/login" class="btn-login">Login →</a>
+  </nav>
+</header>
+
+<style>
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+    height: 60px;
+    background: #0f172a;
+    border-bottom: 1px solid #1e293b;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #38bdf8;
+    text-decoration: none;
+    white-space: nowrap;
+    letter-spacing: -0.3px;
+  }
+  .links {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.75rem;
+  }
+  .links a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: color 0.15s;
+  }
+  .links a:hover {
+    color: #f1f5f9;
+  }
+  .btn-login {
+    background: #38bdf8 !important;
+    color: #0f172a !important;
+    padding: 0.4rem 1rem !important;
+    border-radius: 6px !important;
+    font-weight: 700 !important;
+  }
+  .btn-login:hover {
+    background: #0ea5e9 !important;
+  }
+</style>
