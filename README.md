@@ -24,10 +24,11 @@ Two accounts are seeded automatically every time the backend starts up — no se
 
 ## 🏛️ The Architecture: How It All Works Together
 
-This template is divided into three interconnected applications. Think of it like a restaurant:
-1. **The Public Site (Astro + Sanity):** The storefront and the menu where guests look around and decide to come in.
-2. **The Internal App (React + Vite):** The kitchen and management office where the staff operates.
-3. **The Backend API (FastAPI + SQLModel):** The central database and rule-engine that ensures orders (data) are securely passed between the storefront, the kitchen, and the vault.
+This template is divided into **four** interconnected applications:
+1. **The Public Site (`public-site/` — Astro):** The storefront where guests browse. Blazing fast, server-side rendered.
+2. **The CMS Studio (`studio/` — Sanity):** The content editor's workspace. Runs independently and can be deployed to Sanity Cloud with one command.
+3. **The Internal App (`internal-app/` — React):** The admin and user dashboard for authenticated users.
+4. **The Backend API (`backend/` — FastAPI):** The central data engine. Both frontends talk to this to save or fetch information.
 
 ---
 
@@ -43,7 +44,13 @@ This is the single source of truth for your application's data. Both frontends t
 This is a blazing fast, SEO-optimized public website. Its goal is to load instantly for Google and for your potential customers.
 
 *   **Astro:** A modern web framework designed for content-heavy sites. It takes your code and renders it into pure HTML/CSS *on the server* before sending it to the browser. This means the user gets a fully painted website instantly without waiting for heavy JavaScript to load.
-*   **Sanity.io (The Headless CMS):** A "Headless CMS" means a content management system without a built-in website (unlike WordPress). In `public-site/schema/`, we use TypeScript to define what a "Product" or "Blog Post" looks like. Sanity reads these files and magically generates an admin dashboard (the **Sanity Studio** located at `http://localhost:4321/studio`). Your content writers log into the Studio, type up a blog post, and click Publisher. Astro then uses an API (GROQ) to download that text and inject it into the HTML.
+*   **@sanity/client:** Used to **read** content from your Sanity cloud project via their API (GROQ). The Astro site is now a pure consumer — it fetches data, but no longer hosts the Studio.
+
+### 3. `studio/` (The CMS Admin Studio)
+A fully standalone Sanity Studio for managing your content. It is completely decoupled from the Astro site.
+
+*   **Why standalone?** Embedding a full React app (the Studio) inside an Astro SSR server creates complex build conflicts. A separate package is simpler, faster to build, and can be deployed with `sanity deploy` directly to Sanity's free managed hosting — no extra server required.
+*   **Schemas:** All your content types (`page.ts`, `product.ts`) are defined in `studio/schema/` using TypeScript and are independently managed here.
 
 ### 3. `internal-app/` (The Admin Workspace)
 A secure, interactive dashboard for your authenticated users (Admins, Staff).
@@ -60,43 +67,41 @@ A secure, interactive dashboard for your authenticated users (Admins, Staff).
 Follow these steps to spin up the entire stack locally.
 
 ### 0. Environment Setup
-Before running the apps, you need to set up your environment variables. We have provided example files for the backend and public site:
 ```bash
+# Copy the example .env files for each service
 cp backend/.env.example backend/.env
 cp public-site/.env.example public-site/.env
+cp studio/.env.example studio/.env
 ```
-*(The defaults will work perfectly out-of-the-box for local SQLite development).*
+*(Defaults work as-is for local development. Edit `studio/.env` once you have a real Sanity project.)*
 
 ### 1. Start the Backend API
 ```bash
 cd backend
 python -m venv venv
-# On Windows: .\venv\Scripts\activate
-# On Mac/Linux: source venv/bin/activate
+# On Windows: .\venv\Scripts\activate | On Mac/Linux: source venv/bin/activate
 pip install -r requirements.txt
 python -m uvicorn app.main:app --port 8000 --reload
 ```
-*The API will be available at `http://127.0.0.1:8000` and Swagger docs at `http://127.0.0.1:8000/docs`.*
+*API at `http://127.0.0.1:8000` — Swagger docs at `http://127.0.0.1:8000/docs`.*
 
 ### 2. Start the Public Site
 ```bash
-cd public-site
-npm install
-
-# (Optional) Initialize Sanity to connect the Studio to your cloud account:
-# npx sanity init --env
-
-npm run dev
+cd public-site && npm install && npm run dev
 ```
-*The public site will be available at `http://localhost:4321`. Access the CMS content studio at `http://localhost:4321/studio`.*
+*Public site at `http://localhost:4321`.*
 
 ### 3. Start the Internal Admin App
 ```bash
-cd internal-app
-npm install
-npm run dev
+cd internal-app && npm install && npm run dev
 ```
-*The admin dashboard will be available at `http://localhost:5173`.*
+*Admin dashboard at `http://localhost:5173`.*
+
+### 4. Start the CMS Studio (optional, for content editing)
+```bash
+cd studio && npm install && npm run dev
+```
+*Sanity Studio at `http://localhost:3333` — requires a connected Sanity project (see below).*
 
 ---
 
@@ -114,8 +119,20 @@ npm run dev
 
 The entire stack is Dockerized with a single `docker-compose.yml` at the root.
 
+Because Docker runs securely in an isolated environment, the `docker compose` command itself cannot physically open a browser window on your computer.
+
+**To automatically open the web interfaces immediately after starting**, run the provided startup scripts:
+
 ```bash
-# Build and start all three services in one command
+# On Windows
+.\start.bat
+
+# On Mac / Linux
+./start.sh
+```
+
+Or start manually through Docker alone:
+```bash
 docker compose up --build
 ```
 
@@ -138,21 +155,25 @@ docker compose down       # stop everything
 
 ## 🎨 Setting Up Sanity Studio (CMS)
 
-The public site includes **Sanity Studio** at `http://localhost:4321/studio`. To connect it to a real cloud project:
+The standalone Studio lives in **`/studio`** and connects directly to Sanity Cloud.
 
-1. **Create a free Sanity account** at [sanity.io](https://sanity.io)
-2. Run in `public-site/`:
+### Connect to a Sanity Project
+1. **Create a free account** at [sanity.io](https://sanity.io)
+2. Run inside `studio/`:
    ```bash
+   npm install
    npx sanity login
-   npx sanity init --env
+   npx sanity init --env   # auto-generates studio/.env with your project ID
+   npm run dev             # studio opens at http://localhost:3333
    ```
-3. This creates a `.env` file with your real `PUBLIC_SANITY_PROJECT_ID` and `PUBLIC_SANITY_DATASET`.
-4. Restart the public site — the Studio is now connected to your cloud.
 
-> Without an account, the Studio will attempt to load but fail silently. All other pages work fine.
+### Deploy to Sanity Cloud (free)
+```bash
+cd studio && sanity deploy
+# → your studio is live at https://your-project.sanity.studio/
+```
 
-### Why does the Studio need `@astrojs/react`?
-
-The Sanity Studio is a React application embedded inside the Astro site. Astro by default only outputs plain HTML. By adding the `@astrojs/react` integration to `astro.config.mjs`, Astro learns how to compile and render React components — which is what the Studio is made from.
+### Why standalone instead of embedded in Astro?
+Hosting the Studio inside Astro's SSR engine creates complex build-time conflicts that cause 500 errors. The standalone approach eliminates those, shrinks the Astro Docker image significantly, and enables free cloud deployment via `sanity deploy`.
 
 ---
